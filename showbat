@@ -1,0 +1,48 @@
+#!/bin/bash
+
+bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
+bat_charging=0
+bat_lastNotification=0
+while [ $bat_value -ge 1 ]
+do
+	#send
+	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
+	if [ \( $(( bat_value % 5 )) -eq 0 \) -a \( $bat_lastNotification -ne $bat_value \) ]; 
+	then
+		notify-send "Batterylevel $bat_value"
+		bat_lastNotification=$bat_value
+
+
+		#first warning
+		if [ \( $bat_value -le 30 \) -a \( $bat_charging -eq 0 \)  ] 
+		then
+			notify-send "Battery becomes lower, you should start charging..."
+		fi
+	fi
+	
+	
+	#sleep
+	sleep 30
+	
+	#getValue
+	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
+
+	#Charging
+	if [ $(cat /sys/class/power_supply/BAT1/status) = 'Charging' ]; then
+		if [ $bat_charging = 0 ]; then
+			notify-send "Charging now, current level: $bat_value"
+			#TODO Display Charging speed
+		fi
+		bat_charging=1
+	else
+		if [ $bat_charging = 1 ]; then
+			notify-send "Charger plugged out, discharging. Current level: $bat_value"
+		fi
+		bat_charging=0
+	fi
+	
+done
+
+notify-send "Battery low at $bat_value"
+sleep 5
+notify-send "charge NOW!!!"
