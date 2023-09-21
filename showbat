@@ -9,17 +9,20 @@ do
 	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
 	if [ \( $(( bat_value % 5 )) -eq 0 \) -a \( $bat_lastNotification -ne $bat_value \) ]; 
 	then
-		notify-send "Batterylevel $bat_value"
+		notify-send "Batterylevel $bat_value %"
 		bat_lastNotification=$bat_value
 
 
 		#first warning
-		if [ \( $bat_value -le 30 \) -a \( $bat_charging -eq 0 \)  ] 
+		if [ \( $bat_value -le 30 \) -a \( $bat_charging -eq 0 \)  ]; 
 		then
 			notify-send "Battery becomes lower, you should start charging..."
 		fi
 	fi
-	
+	if [ \( $bat_value -le 10 \) -a \( $bat_lastNotification -ne $bat_value \) ];
+	then
+		notify-send "Urgend! Charge your device or shut down! Battery just has $bat_value %"
+	fi
 	
 	#sleep
 	sleep 30
