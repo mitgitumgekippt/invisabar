@@ -7,7 +7,7 @@ while [ $bat_value -ge 1 ]
 do
 	#send
 	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
-	if [ \( $(( bat_value % 5 )) -eq 0 \) -a \( $bat_lastNotification -ne $bat_value \) ]; 
+	if [ \( $(( bat_value - bat_lastNotification )) -ge 10 \) ]; 
 	then
 		notify-send "Batterylevel $bat_value %"
 		bat_lastNotification=$bat_value
