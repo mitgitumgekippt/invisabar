@@ -1,48 +1,77 @@
 #!/bin/bash
 
+# INIT
 bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
 bat_charging=0
 bat_lastNotification=0
+text_charge=""
+
+# VALUES
+bat_WarningAt=30
+bat_DangerAt=10
+
+# TEXTS
+text_StartedCharging="Started Charging\n"
+text_StartedDischarging="Charger plugged out, discharging.\n"
+text_Charging="Charging\n"
+text_Discharging="Discharging\n"
+text_Warning="Your Battery is low, you should plug in a charger.\n"
+text_Danger="Urgend! Your Battery will die soon, plug in or shut down!\n"
+text_Batterylevel="Batterylevel: "
+
+
+notify-send "${text_Batterylevel} ${bat_value} %"
 while [ $bat_value -ge 1 ]
 do
-	#send
-	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
-	if [ \( $(( bat_value - bat_lastNotification )) -ge 10 \) ]; 
-	then
-		notify-send "Batterylevel $bat_value %"
-		bat_lastNotification=$bat_value
 
-
-		#first warning
-		if [ \( $bat_value -le 30 \) -a \( $bat_charging -eq 0 \)  ]; 
-		then
-			notify-send "Battery becomes lower, you should start charging..."
-		fi
-	fi
-	if [ \( $bat_value -le 10 \) -a \( $bat_lastNotification -ne $bat_value \) ];
-	then
-		notify-send "Urgend! Charge your device or shut down! Battery just has $bat_value %"
-	fi
-	
-	#sleep
-	sleep 30
-	
 	#getValue
 	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
-
-	#Charging
-	if [ $(cat /sys/class/power_supply/BAT1/status) = 'Charging' ]; then
-		if [ $bat_charging = 0 ]; then
-			notify-send "Charging now, current level: $bat_value"
-			#TODO Display Charging speed
-		fi
-		bat_charging=1
-	else
-		if [ $bat_charging = 1 ]; then
-			notify-send "Charger plugged out, discharging. Current level: $bat_value"
+	if  [ \( $(cat /sys/class/power_supply/BAT1/status) = 'Discharging' \) ]; then
+		echo "Disch"
+		if [ $bat_charging -eq 1 ]; then
+			text_charge=$text_StartedDischarging
+		else
+			text_charge=$text_Discharging
 		fi
 		bat_charging=0
+	else
+		if [ $bat_charging -eq 0 ]; then
+			text_charge=$text_StartedCharging
+		else
+			text_charge="$(cat /sys/class/power_supply/BAT1/status)"
+
+		fi
+		bat_charging=1
 	fi
+	echo $text_charge
+	echo $bat_charging
+	echo $bat_value
+	echo $bat_lastNotification
+	echo "$(( bat_value - bat_lastNotification )) "
+	
+	#sendMessage
+	if [ \( \( $(( bat_lastNotification - bat_value )) -gt 10 \) -o  \( $(( bat_value - bat_lastNotification )) -gt 10 \) \) -a \( $(( bat_value % 10 )) -eq 0 \) ]; then
+		echo "send_message"
+		notify-send "${bat_presentedText} ${bat_value} %" $text_charge
+		bat_lastNotification=$bat_value
+
+		#first warning
+		if [ \( $bat_value -le $bat_WarningAt \) -a \( $bat_charging -eq 0 \)  ]; 
+		then
+			echo "send_warning"
+			notify-send $text_Warning
+		fi
+	fi
+
+	if [ \( $bat_value -le $bat_DangerAt \) -a \( $bat_lastNotification -lt $bat_value \) ];
+	then
+		echo "send_danger"
+		notify-send $text_Danger
+	fi
+	
+	
+	#sleep
+	sleep 3
 	
 done
 
