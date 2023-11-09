@@ -48,6 +48,7 @@ do
 	echo $bat_value
 	echo $bat_lastNotification
 	echo "$(( bat_value - bat_lastNotification )) "
+	echo "$(( bat_value % 10 ))"
 	
 	#sendMessage
 	if [ \( \( $(( bat_lastNotification - bat_value )) -gt 10 \) -o  \( $(( bat_value - bat_lastNotification )) -gt 10 \) \) -a \( $(( bat_value % 10 )) -eq 0 \) ]; then
@@ -66,11 +67,8 @@ do
 	if [ \( $bat_value -le $bat_DangerAt \) -a \( $bat_lastNotification -lt $bat_value \) ];
 	then
 		echo "send_danger"
-		notify-send $text_Danger
 	fi
 	
-	
-	#sleep
 	sleep 3
 	
 done
