@@ -1,0 +1,13 @@
+#!/bin/bash
+
+time_date="$(date +%d-%b-%Y)"
+time_weekday="$(date +%A)"
+time_time="$(date +%H:%M)"
+time_weeknr="$(date +%U)"
+
+echo $time_date
+echo $time_weekday
+echo $time_time
+echo $time_weeknr
+
+notify-send "Time: $time_time" "$time_weekday, $time_date in week #$time_weeknr"
