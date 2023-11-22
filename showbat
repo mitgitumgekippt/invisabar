@@ -27,7 +27,7 @@ do
 	if  [ \( $(cat /sys/class/power_supply/BAT1/status) = 'Discharging' \) ]; then
 		if [ $bat_charging -eq 1 ]; then
 			text_charge=$text_StartedDischarging
-			notify-send "$text_charge"
+			notify-send "$text_charge" "$text_Batterylevel $bat_value"
 		else
 			text_charge="$(cat /sys/class/power_supply/BAT1/status)"
 		fi
@@ -35,7 +35,7 @@ do
 	else
 		if [ $bat_charging -eq 0 ]; then
 			text_charge=$text_StartedCharging
-			notify-send "$text_charge"
+			notify-send "$text_charge" "$text_Batterylevel $bat_value"
 		else
 			text_charge="$(cat /sys/class/power_supply/BAT1/status)"
 
