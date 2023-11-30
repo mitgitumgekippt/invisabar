@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# INIT
+bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
+bat_charging=0
+bat_lastNotification=0
+text_charge=""
+
+# VALUES
+bat_WarningAt=30
+bat_DangerAt=10
+
+# TEXTS
+text_StartedCharging="Started Charging. "
+text_StartedDischarging="Charger plugged out, discharging. "
+text_Warning="Your Battery is low, you should plug in a charger. "
+text_Danger="Urgend! Your Battery will die soon, plug in or shut down! "
+text_Batterylevel="Batterylevel: "
+
+
+notify-send "${text_Batterylevel} ${bat_value} %"
+while [ $bat_value -ge 1 ]
+do
+
+	#getValue
+	bat_value="$(cat /sys/class/power_supply/BAT1/capacity)"
+	if  [ \( $(cat /sys/class/power_supply/BAT1/status) = 'Discharging' \) ]; then
+		if [ $bat_charging -eq 1 ]; then
+			text_charge=$text_StartedDischarging
+			notify-send "$text_charge" "$text_Batterylevel $bat_value"
+		else
+			text_charge="$(cat /sys/class/power_supply/BAT1/status)"
+		fi
+		bat_charging=0
+	else
+		if [ $bat_charging -eq 0 ]; then
+			text_charge=$text_StartedCharging
+			notify-send "$text_charge" "$text_Batterylevel $bat_value"
+		else
+			text_charge="$(cat /sys/class/power_supply/BAT1/status)"
+
+		fi
+		bat_charging=1
+	fi
+	echo $text_charge
+	echo $bat_value
+	echo $bat_lastNotification
+	
+	#sendMessage
+	if [ \( \( $(( bat_lastNotification - bat_value )) -ge 10 \) -o  \( $(( bat_value - bat_lastNotification )) -ge 10 \) \) -a \( $(( bat_value % 10 )) -eq 0 \) ]; then
+		echo "send_message"
+		notify-send "${bat_presentedText} ${bat_value} %" $text_charge
+		bat_lastNotification=$bat_value
+
+		#first warning
+		if [ \( $bat_value -le $bat_WarningAt \) -a \( $bat_charging -eq 0 \)  ]; 
+		then
+			echo "send_warning"
+			notify-send $text_Warning
+		fi
+	fi
+
+	if [ \( $bat_value -le $bat_DangerAt \) -a \( $bat_lastNotification -lt $bat_value \) ];
+	then
+		echo "send_danger"
+	fi
+	
+	sleep 3
+	
+done
+
+notify-send "Battery low at $bat_value, System shuts down in 1 min"
+sleep 60
+shutdown now
+notify-send "charge NOW!!!"
