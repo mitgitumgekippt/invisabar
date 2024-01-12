@@ -1,0 +1,21 @@
+#!/bin/bash
+
+bat_capacity="$(cat /sys/class/power_supply/BAT1/capacity)"
+bat_chargingstatus="$(cat /sys/class/power_supply/BAT1/status)"
+
+bat_cyclecount="$(cat /sys/class/power_supply/BAT1/cycle_count)"
+bat_voltagenow="$(cat /sys/class/power_supply/BAT1/voltage_now)"
+
+bat_manufacturer="$(cat /sys/class/power_supply/BAT1/manufacturer)"
+bat_model_name="$(cat /sys/class/power_supply/BAT1/model_name)"
+bat_serialnumber="$(cat /sys/class/power_supply/BAT1/serial_number)"
+bat_technology="$(cat /sys/class/power_supply/BAT1/technology)"
+bat_type="$(cat /sys/class/power_supply/BAT1/\type)"
+
+
+echo $bat_capacity
+echo $bat_chargingstatus
+echo $bat_cyclecount
+echo $bat_voltagenow
+
+notify-send "Battery: $bat_capacity%, $bat_chargingstatus" "Cyclecount: $bat_cyclecount, Voltage now: $bat_voltagenow"
