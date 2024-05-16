@@ -69,12 +69,11 @@ do
 
 	if [ $bat_value -le 5 ]; then
 		notify-send "Battery low at $bat_value, System shuts down in 1 min"
-		sleep 60
-		shutdown now
+		shutdown -P
 	fi	
 
 done
 
 notify-send "Battery low at $bat_value, System shuts down in 1 min"
-shutdown --poweroff
+shutdown -P
 notify-send "charge NOW!!!"
