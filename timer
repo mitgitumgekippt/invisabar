@@ -1,9 +1,17 @@
 #!/bin/bash
 
 time=$1
-
+text="${@:2}"
 
 notify-send -t 2000 " Timer started: $time "
+
 sleep $time
-notify-send " Your time is up! $time has passed "
+
+if [ $# = 1 ];
+then
+	notify-send " Your time is up! $time has passed "
+else
+	notify-send "  Your time is up! $time has passed. Your time for $text has finished! "
+fi
+
 
