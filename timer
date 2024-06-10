@@ -1,0 +1,9 @@
+#!/bin/bash
+
+time=$1
+
+
+notify-send -t 2000 " Timer started: $time "
+sleep $time
+notify-send " Your time is up! $time has passed "
+
