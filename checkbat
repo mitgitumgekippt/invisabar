@@ -19,7 +19,7 @@ text_Batterylevel="Batterylevel: "
 
 
 notify-send "${text_Batterylevel} ${bat_value} %"
-while [ $bat_value -ge 3 ]
+while [ $bat_value -ge 1 ]
 do
 
 	#getValue
@@ -68,8 +68,13 @@ do
 	sleep 3
 
 	if [ $bat_value -le 5 ]; then
-		notify-send "Battery low at $bat_value, System shuts down in 1 min"
-		shutdown -P
+		if [ $bat_charging -eq 0 ];
+		then
+			notify-send "Battery low at $bat_value, System shuts down in 1 min"
+			shutdown -P
+		else
+			shutdown -c
+		fi
 	fi	
 
 done
